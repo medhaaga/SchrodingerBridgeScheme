@@ -115,9 +115,8 @@ def schbridge(cost_mat, eps, total, discard):
 
     return avg_cost, avg_plan, np.array(costs), swaps/(total - discard)
 
-
-element_max = np.vectorize(max)
-def sinkhorn(cost_mat, a, b, epsilon, precision, maxiter=1000):
+@jit(nopython=True)
+def sinkhorn(cost_mat, a, b, epsilon, precision=1e-8, maxiter=1000):
     """Computes EOT statistic with Sinkhorn algorithm.
 
     Parameters
@@ -151,8 +150,8 @@ def sinkhorn(cost_mat, a, b, epsilon, precision, maxiter=1000):
     p_norm = np.trace(P.T @ P)
     
     for _ in range(maxiter):
-        u = a/element_max((K @ v), 1e-300) # avoid divided by zero
-        v = b/element_max((K.T @ u), 1e-300)
+        u = a/np.maximum((K @ v), 1e-300) # avoid divided by zero
+        v = b/np.maximum((K.T @ u), 1e-300)
         P = np.diag(u.flatten()) @ K @ np.diag(v.flatten())
         if abs((np.trace(P.T @ P) - p_norm)/p_norm) < precision:
             break
@@ -164,48 +163,7 @@ def cost_matrix(X, Y):
     """L2 cost matrix
     """
     n = X.shape[0]
-    return (X.reshape((n,1)) - X.reshape((1,n)))**2
-
-def entropy_SB_scheme_gibbs(X, steps=[1], eps=0.001, total=1e6, discard=1e4, forward=True):
-    start = X
-    n = X.shape[0]
-    total_steps = steps[-1]
-    X_list = []
-    for i in tqdm(range(total_steps)):
-        cost_mat = cost_matrix(X, X)
-        avg_cost, avg_plan, _, _ = schbridge(cost_mat, eps=eps, total=total, discard=discard)
-        bar_proj = n*np.matmul(avg_plan, X.reshape(n,1)).reshape(n,)
-
-        if forward:
-            X = 2*X - bar_proj
-        else:
-            X = bar_proj
-
-        if i+1 in steps:
-            X_list.append(X)
-            print(f'Epsilon: {eps}, Steps: {i+1}, Distance from start: {np.linalg.norm(start-X_list[-1])}')
-
-    return np.array(X_list)
-
-def entropy_SB_scheme_sinkhorn(X, steps=[1], eps=0.001, precision=1e-30, maxiter=10000, forward=True):
-    start = X
-    n = X.shape[0]
-    total_steps = steps[-1]
-    X_list = []
-    for i in tqdm(range(total_steps)):
-        cost_mat = cost_matrix(X, X)
-        avg_cost, avg_plan = sinkhorn(cost_mat, np.ones(n)/n, np.ones(n)/n, epsilon=eps, precision=precision, maxiter=maxiter)
-        bar_proj = n*np.matmul(avg_plan, X.reshape(n,1)).reshape(n,)
-        if forward:
-            X = 2*X - bar_proj
-        else:
-            X = bar_proj
-
-        if i+1 in steps:
-            X_list.append(X)
-            print(f'Epsilon: {eps}, Steps: {i+1}, Distance from start: {np.linalg.norm(start-X)}')
-    return np.array(X_list)
-
+    return (X.reshape((n,1)) - Y.reshape((1,n)))**2
 
 
 if __name__ == '__main__':
