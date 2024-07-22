@@ -106,7 +106,7 @@ if __name__ == '__main__':
         steps = 10*np.arange(1, (max_steps//10)+1)
 
         ## Gibbs
-        X_SB_Gibbs = entropy_SB_scheme_gibbs(X_, steps=steps, eps=e, total=1e6, discard=1e4, forward=False)
+        X_SB_Gibbs = kl_SB_scheme_gibbs(X_, steps=steps, eps=e, total=1e6, discard=1e4, forward=False)
 
         # Save multiple arrays into a single .npz file
         file_path = f'X_SB_Gibbs_reverse_eps{e}.npy'

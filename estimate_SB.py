@@ -138,6 +138,8 @@ def sinkhorn(cost_mat, a, b, epsilon, precision=1e-8, maxiter=1000):
         Computed EOT cost
     P : array-like, shape (size, size)
         Minimizer of EOT
+    all_costs: list
+        evolution of Schrodingerb cost with Sinkhorn iterations
     """
     a = a.reshape((cost_mat.shape[0], 1))
     b = b.reshape((cost_mat.shape[1], 1))
@@ -148,7 +150,8 @@ def sinkhorn(cost_mat, a, b, epsilon, precision=1e-8, maxiter=1000):
     v = np.ones((cost_mat.shape[1], 1))
     P = np.diag(u.flatten()) @ K @ np.diag(v.flatten())
     p_norm = np.trace(P.T @ P)
-    
+    all_costs = []
+
     for _ in range(maxiter):
         u = a/np.maximum((K @ v), 1e-300) # avoid divided by zero
         v = b/np.maximum((K.T @ u), 1e-300)
@@ -156,8 +159,9 @@ def sinkhorn(cost_mat, a, b, epsilon, precision=1e-8, maxiter=1000):
         if abs((np.trace(P.T @ P) - p_norm)/p_norm) < precision:
             break
         p_norm = np.trace(P.T @ P)
-    cost = np.trace(cost_mat.T @ P)
-    return cost, P
+        cost = np.trace(cost_mat.T @ P)
+        all_costs.append(cost)
+    return cost, P, all_costs
 
 def cost_matrix(X, Y):
     """L2 cost matrix

@@ -20,6 +20,39 @@ def parse_arguments():
     return parser
  
 def entropy_SB_scheme_mcmc(X, steps=[1], eps=0.01, total=5e5, discard=1e4, forward=True, dir=None):
+
+    """"Implements SB approximation of explicit Euler discretization of the gradient flow of entropy
+        using MCMC approximation of Schrödinger bridge.
+
+    Arguments
+    -----------------------
+    X: np array-like 
+        All particles sampled from the starting distribution.
+
+    steps: list, optional, default=[1]
+        List of discretization steps at which to record the state of the particles.
+
+    eps: float, optional, default=0.01
+        Epsilon value for the Schrödinger bridge computation.
+
+    total: int, optional, default=5e5
+        Total number of iterations for the Schrödinger bridge bridge computation.
+
+    discard: int, optional, default=1e4
+        Number of initial MCMC steps to discard.
+
+    forward: bool, optional, default=True
+        Direction of the Euler discretization. If True, perform forward discretization, otherwise reverse.
+
+    dir: str or None, optional, default=None
+        Directory path to save the state of X at specified steps. If None, states are not saved.
+
+    Returns
+    -----------------------
+    X_list: list of np.array
+        List of arrays representing the state of X at the specified steps.
+    """
+
     start = X
     n = X.shape[0]
     total_steps = steps[-1]
@@ -43,6 +76,39 @@ def entropy_SB_scheme_mcmc(X, steps=[1], eps=0.01, total=5e5, discard=1e4, forwa
     return np.array(X_list)
 
 def entropy_SB_scheme_sinkhorn(X, steps=[1], eps=0.01, precision=1e-8, maxiter=1e6, forward=True, dir=None):
+
+    """
+    Implements the Sinkhorn-based approximation of explicit Euler discretization (forward & reverse) of the gradient flow of entropy function.
+
+    Arguments
+    -----------------------
+    X: np array-like 
+        All particles sampled from the starting distribution.
+
+    steps: list, optional, default=[1]
+        List of time steps at which to record the state of the array X.
+
+    eps: float, optional, default=0.01
+        Epsilon value for the Sinkhorn algorithm.
+
+    precision: float, optional, default=1e-8
+        Precision for the Sinkhorn algorithm convergence.
+
+    maxiter: int, optional, default=1e6
+        Maximum number of iterations for the Sinkhorn algorithm.
+
+    forward: bool, optional, default=True
+        Direction of the Euler discretization. If True, perform forward discretization, otherwise reverse.
+
+    dir: str or None, optional, default=None
+        Directory path to save the state of X at specified steps. If None, states are not saved.
+
+    Returns
+    -----------------------
+    np.array
+        Array containing the state of X at the specified steps.
+    """
+
     start = X
     n = X.shape[0]
     total_steps = steps[-1]
@@ -74,8 +140,6 @@ if __name__ == '__main__':
     parser = parse_arguments()
     args = parser.parse_args()
     
-
-
     ##########################################
     ## Create source data
     ##########################################
