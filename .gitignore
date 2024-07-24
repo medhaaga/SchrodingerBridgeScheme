@@ -12,6 +12,7 @@ __pycache__/
 *.wav
 *.npz
 *.pkl
+*.gif
 
 # C extensions
 *.so
@@ -138,8 +139,6 @@ ENV/
 env.bak/
 venv.bak/
 
-# paths
-results/
 
 
 # Spyder project settings
