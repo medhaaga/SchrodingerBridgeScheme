@@ -119,7 +119,7 @@ def entropy_SB_scheme_sinkhorn(X, steps=[1], eps=0.01, precision=1e-8, maxiter=1
     for i in tqdm(range(total_steps)):
    
         cost_mat = cost_matrix(X, X)
-        _, avg_plan = sinkhorn(cost_mat, np.ones(n)/n, np.ones(n)/n, epsilon=eps, precision=precision, maxiter=maxiter)
+        _, avg_plan, _ = sinkhorn(cost_mat, np.ones(n)/n, np.ones(n)/n, epsilon=eps, precision=precision, maxiter=maxiter)
         bar_proj = n*np.matmul(avg_plan, X.reshape(n,1)).reshape(n,)
         if forward:
             X = 2*X - bar_proj
@@ -164,7 +164,7 @@ if __name__ == '__main__':
     max_steps = int(args.time/args.step_size)
     steps = 10*np.arange(1, (max_steps//10)+1)
     print(steps)
-    dir = f'{args.SB_estimation_method}/{args.source_dist}/{direction}'
+    dir = f'results/{args.SB_estimation_method}/{args.source_dist}/{direction}'
     os.makedirs(dir, exist_ok=True)
 
     if args.SB_estimation_method == 'mcmc':
