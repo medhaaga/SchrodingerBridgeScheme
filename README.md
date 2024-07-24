@@ -23,6 +23,7 @@ The following conda environment can be built to run the code. The environment us
 conda env create -f environment.yml
 conda activate gradient_flows
 ```
+All experiments were conducted on hardware with 125GB of CPU RAM.
 
 ## Reproducing Experimental Results
 
