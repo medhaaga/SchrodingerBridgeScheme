@@ -16,6 +16,9 @@ def parse_arguments():
     parser.add_argument("--n_particles", type=int, default=500)
     parser.add_argument("--mcmc_steps", type=int, default=5e5)
     parser.add_argument("--mcmc_burn", type=int, default=1e4)
+    parser.add_argument("--sinkhorn_precision", type=float, default=1e-7)
+    parser.add_argument("--sinkhorn_maxiter", type=int, default=1e6)
+
 
     return parser
  
@@ -170,7 +173,7 @@ if __name__ == '__main__':
     if args.SB_estimation_method == 'mcmc':
         X_SB_estimate = entropy_SB_scheme_mcmc(X, steps=steps, eps=args.step_size, total=args.mcmc_steps, discard=args.mcmc_burn, forward=args.forward, dir=dir)
     else:
-        X_SB_estimate = entropy_SB_scheme_sinkhorn(X, steps=steps, eps=args.step_size, forward=args.forward, dir=dir)
+        X_SB_estimate = entropy_SB_scheme_sinkhorn(X, steps=steps, eps=args.step_size, forward=args.forward, precision=args.sinkhorn_precision, maxiter=args.sinkhorn_maxiter, dir=dir)
 
     # Save arrays 
     
