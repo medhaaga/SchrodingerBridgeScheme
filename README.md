@@ -1,7 +1,7 @@
 # Iterated Schrödinger Bridge Approximation to Wasserstein Gradient Flows
 
 
-This repository contains code and simulations results for the paper [**Iterated Schrödinger Bridge Approximation to Wasserstein Gradient Flows**](https://arxiv.org/abs/2406.10823). The code implements our Schrödinger Bridge (SB) scheme for discrete approximation of heat flow. The SB iterations can be computed for any set of initial particles using the functions `entropy_SB_scheme_sinkhorn` and `entropy_SB_scheme_mcmc` from the script `SB_scheme_Entropy.py`. 
+This repository contains code and simulations results for the paper [**Iterated Schrödinger Bridge Approximation to Wasserstein Gradient Flows**](https://arxiv.org/abs/2406.10823). This is joint work with [Garret Mulcahy](https://math.washington.edu/people/garrett-mulcahy), [Soumik Pal](https://math.washington.edu/people/soumik-pal), and [Zaid Harchaoui](https://stat.uw.edu/about-us/people/zaid-harchaoui). The code implements our Schrödinger Bridge (SB) scheme for discrete approximation of heat flow. The SB iterations can be computed for any set of initial particles using the functions `entropy_SB_scheme_sinkhorn` and `entropy_SB_scheme_mcmc` from the script `SB_scheme_Entropy.py`. 
 
 
 ## Background
