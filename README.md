@@ -71,7 +71,7 @@ If you find this implementation useful, please cite:
 
 ```
 @article{agarwal2024iterated,
-  title={Iterated Schr$\backslash$" odinger bridge approximation to Wasserstein Gradient Flows},
+  title={Iterated Schrödinger bridge approximation to Wasserstein Gradient Flows},
   author={Agarwal, Medha and Harchaoui, Zaid and Mulcahy, Garrett and Pal, Soumik},
   journal={arXiv preprint arXiv:2406.10823},
   year={2024}
