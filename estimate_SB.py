@@ -141,13 +141,13 @@ def sinkhorn(cost_mat, a, b, epsilon, precision=1e-8, maxiter=1000):
     all_costs: list
         evolution of Schrodingerb cost with Sinkhorn iterations
     """
-    a = a.reshape((cost_mat.shape[0], 1))
-    b = b.reshape((cost_mat.shape[1], 1))
+    a = a.reshape((cost_mat.shape[0], ))
+    b = b.reshape((cost_mat.shape[1], ))
     K = np.exp(-cost_mat/epsilon)
     
     # initialization
-    u = np.ones((cost_mat.shape[0], 1))
-    v = np.ones((cost_mat.shape[1], 1))
+    u = np.ones((cost_mat.shape[0], ))
+    v = np.ones((cost_mat.shape[1], ))
     P = np.diag(u.flatten()) @ K @ np.diag(v.flatten())
     p_norm = np.trace(P.T @ P)
     all_costs = []
@@ -166,8 +166,10 @@ def sinkhorn(cost_mat, a, b, epsilon, precision=1e-8, maxiter=1000):
 def cost_matrix(X, Y):
     """L2 cost matrix
     """
-    n = X.shape[0]
-    return (X.reshape((n,1)) - Y.reshape((1,n)))**2
+    X = X.reshape(X.shape[0], -1)
+    Y = Y.reshape(Y.shape[0], -1)
+
+    return np.sum((X[:, None, :] - Y[None, :, :])**2, axis=-1)
 
 
 if __name__ == '__main__':

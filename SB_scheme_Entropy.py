@@ -16,7 +16,7 @@ def parse_arguments():
     parser.add_argument("--n_particles", type=int, default=500)
     parser.add_argument("--mcmc_steps", type=int, default=5e5)
     parser.add_argument("--mcmc_burn", type=int, default=1e4)
-    parser.add_argument("--sinkhorn_precision", type=float, default=1e-7)
+    parser.add_argument("--sinkhorn_precision", type=float, default=1e-8)
     parser.add_argument("--sinkhorn_maxiter", type=int, default=1e6)
 
 
@@ -123,7 +123,7 @@ def entropy_SB_scheme_sinkhorn(X, steps=[1], eps=0.01, precision=1e-8, maxiter=1
    
         cost_mat = cost_matrix(X, X)
         _, avg_plan, _ = sinkhorn(cost_mat, np.ones(n)/n, np.ones(n)/n, epsilon=eps, precision=precision, maxiter=maxiter)
-        bar_proj = n*np.matmul(avg_plan, X.reshape(n,1)).reshape(n,)
+        bar_proj = n*np.matmul(avg_plan, X.reshape(n,-1)).reshape(n,-1)
         if forward:
             X = 2*X - bar_proj
         else:
@@ -149,15 +149,27 @@ if __name__ == '__main__':
     
 
     n = args.n_particles # number of particles
-    if args.source_dist == 'gaussian':
-        mu, sigma_squared, sigma = 0, 1, 1
-        X = np.random.normal(mu, sigma, n)
-    elif args.source_dist == 'thin_gaussian':
-        mu, sigma_squared, sigma = 0, .25, .5
-        X = np.random.normal(mu, sigma, n)
-    elif args.source_dist == 'gaussian_mix':
-        mu1, mu2 = -2, 2
-        X = np.concatenate((np.random.normal(mu1, 1, 500//2), np.random.normal(mu2, 1, 500//2)))
+    if args.forward:
+        if args.source_dist == 'gaussian':
+            mu, sigma_squared, sigma = 0, 1, 1
+            X = np.random.normal(mu, sigma, n)
+        elif args.source_dist == 'thin_gaussian':
+            mu, sigma_squared, sigma = 0, .25, .5
+            X = np.random.normal(mu, sigma, n)
+        elif args.source_dist == 'gaussian_mix':
+            mu1, mu2 = -2, 2
+            X = np.concatenate((np.random.normal(mu1, 1, 500//2), np.random.normal(mu2, 1, 500//2)))
+    else:
+        if args.source_dist == 'gaussian':
+            mu, sigma_squared, sigma = 0, 1+args.time, np.sqrt(1+args.time)
+            X = np.random.normal(mu, sigma, n)
+        elif args.source_dist == 'thin_gaussian':
+            mu, sigma_squared, sigma = 0, .25+args.time, np.sqrt(0.25+args.time)
+            X = np.random.normal(mu, sigma, n)
+        elif args.source_dist == 'gaussian_mix':
+            mu1, mu2 = -2, 2
+            sigma = np.sqrt(1 + args.time)
+            X = np.concatenate((np.random.normal(mu1, sigma, 500//2), np.random.normal(mu2, sigma, 500//2)))
 
 
     # Calculate cost matrix
