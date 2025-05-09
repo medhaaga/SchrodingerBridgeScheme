@@ -1,8 +1,7 @@
 # Iterated Schrödinger Bridge Approximation to Wasserstein Gradient Flows
 
 
-This repository contains code and simulations results for the paper [**Iterated Schrödinger Bridge Approximation to Wasserstein Gradient Flows**](https://arxiv.org/abs/2406.10823). The code implements our Schrödinger Bridge (SB) scheme for discrete approximation of heat flow. The SB iterations can be computed for any set of initial particles using the functions `entropy_SB_scheme_sinkhorn` and `entropy_SB_scheme_mcmc` from the script `SB_scheme_Entropy.py`.
-
+This repository contains code and simulations results for the paper [**Iterated Schrödinger Bridge Approximation to Wasserstein Gradient Flows**](https://arxiv.org/abs/2406.10823). This is joint work with [Garret Mulcahy](https://math.washington.edu/people/garrett-mulcahy), [Soumik Pal](https://math.washington.edu/people/soumik-pal), and [Zaid Harchaoui](https://stat.uw.edu/about-us/people/zaid-harchaoui). The code implements our Schrödinger Bridge (SB) scheme for discrete approximation of heat flow. The SB iterations can be computed for any set of initial particles using the functions `entropy_SB_scheme_sinkhorn` and `entropy_SB_scheme_mcmc` from the script `SB_scheme_Entropy.py`. 
 
 
 ## Background
@@ -13,7 +12,7 @@ We compare the SB update to the true gradient flow. We also push a finite number
 
 Consider $500$ i.i.d. observations from a mixture of two Gaussians. We approximate the discretized heat flow starting from this distribution by pushing the particles using the SB scheme with a regularization parameter $\varepsilon = 0.1$. Histograms of these particles is plotted below at every 1 time unit. Let $\rho(t)$ be the gradient flow and $\hat \rho(t)$ be the piecewise-constant interpolation of the SB scheme. Both $\rho(t)$ and $\hat \rho(t)$ are also plotted. The histogram provides a finite sample approximation of $\hat \rho(t)$.
 
-![Local Image](./results/sinkhorn/gaussian_mix/forward/eps0.1_time5.png)
+![Local Image](./results/sinkhorn/gaussian_mix/forward/eps0.1_time5.0.png)
 
 
 ## Dependencies
@@ -58,13 +57,21 @@ The options for the remaining arguments are
 - The results for all experiments are visualized in `SB_scheme_Entropy.ipynb`.
 - The two methods for approximating the discrete Schrödinger bridge are compared in `SB_approx.ipynb`.
 
+## Theoretical Contribution
+
+Let $\left(\rho(t), t\in[0,T]\right)$ be a gradient flow starting from $\rho(0) = \rho_0$. Under some assumptions on the gradient flow, the SB scheme provides a discrete time approximation of the gradient flow. The sequence of SB steps, starting from $\rho_0$ and with step size $\varepsilon >0$ are denoted by $\left(\text{SB}_{\varepsilon}^n(\rho_0), n \in [N_\varepsilon]\right)$, $N_\varepsilon = \lfloor T \varepsilon^{-1}\rfloor$. We prove that a piecewise constant interpolation of the SB scheme uniformly converges to the gradient flow in 2-Wassersetin distance as $\varepsilon \to 0$ for two special kinds of gradient flows. The first is the heat flow and the second is the flow corresponding to the standard Ornstein-Uhlenbeck process. This convergence is proved using a **triangular argument**. For any $n \in [N_\varepsilon]$, the distance $\mathbb{W}_2\left(\text{SB}_\varepsilon^n(\rho_0), \rho(n \varepsilon)\right)$ is split into $d_n^1$ and $d_n^2$ (refer to the graphic below for description) which are individually treated by proving consistency and contraction of our SB scheme. See the graphic below for visualizing the SB scheme.
+
+<p align="center">
+  <img src="./results/triangle_argument.png" alt="Image description" width="622" height="350">
+</p>
+
 ## Citation
 
 If you find this implementation useful, please cite:
 
 ```
 @article{agarwal2024iterated,
-  title={Iterated Schr$\backslash$" odinger bridge approximation to Wasserstein Gradient Flows},
+  title={Iterated Schrödinger bridge approximation to Wasserstein Gradient Flows},
   author={Agarwal, Medha and Harchaoui, Zaid and Mulcahy, Garrett and Pal, Soumik},
   journal={arXiv preprint arXiv:2406.10823},
   year={2024}
