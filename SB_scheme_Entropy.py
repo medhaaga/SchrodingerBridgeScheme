@@ -8,9 +8,9 @@ from estimate_SB import schbridge, sinkhorn, cost_matrix
 def parse_arguments():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--SB_estimation_method", type=str, choices=['mcmc', 'sinkhorn'], default='sinkhorn')
+    parser.add_argument("--SB_estimation_method", type=str, choices=['SB_mcmc', 'SB_sinkhorn', 'RM_sinkhorn'], default='SB_sinkhorn')
     parser.add_argument("--forward", type=int, choices=[0, 1], default=1)
-    parser.add_argument("--source_dist", type=str, choices=['gaussian', 'thin_gaussian', 'gaussian_mix'], default='gaussian')
+    parser.add_argument("--source_dist", type=str, choices=['gaussian', 'thin_gaussian', 'gaussian_mix'], default='gaussian_mix')
     parser.add_argument("--time", type=float, default=5.)
     parser.add_argument("--step_size", type=float, default=0.01)
     parser.add_argument("--n_particles", type=int, default=500)
@@ -137,6 +137,70 @@ def entropy_SB_scheme_sinkhorn(X, steps=[1], eps=0.01, precision=1e-8, maxiter=1
 
     return np.array(X_list)
 
+def entropy_RM_scheme_sinkhorn(X, steps=[1], eps=0.01, precision=1e-8, maxiter=1e6, forward=True, dir=None):
+
+    """
+    Implements the Sinkhorn-based approximation of explicit Euler discretization (forward & reverse) of the gradient flow of entropy function.
+
+    Arguments
+    -----------------------
+    X: np array-like 
+        All particles sampled from the starting distribution.
+
+    steps: list, optional, default=[1]
+        List of time steps at which to record the state of the array X.
+
+    eps: float, optional, default=0.01
+        Epsilon value for the Sinkhorn algorithm.
+
+    precision: float, optional, default=1e-8
+        Precision for the Sinkhorn algorithm convergence.
+
+    maxiter: int, optional, default=1e6
+        Maximum number of iterations for the Sinkhorn algorithm.
+
+    forward: bool, optional, default=True
+        Direction of the Euler discretization. If True, perform forward discretization, otherwise reverse.
+
+    dir: str or None, optional, default=None
+        Directory path to save the state of X at specified steps. If None, states are not saved.
+
+    Returns
+    -----------------------
+    np.array
+        Array containing the state of X at the specified steps.
+    """
+
+    start = X
+    n = X.shape[0]
+    total_steps = steps[-1]
+    X_list = [X]
+    if dir:
+        np.save(os.path.join(dir, f'eps{eps}_time{int(total_steps*eps)}.npy'), np.array(X_list))
+
+    for i in tqdm(range(total_steps)):
+   
+        cost_mat = cost_matrix(X, X)
+        _, avg_plan, _ = sinkhorn(cost_mat, np.ones(n)/n, np.ones(n)/n, epsilon=eps, precision=precision, maxiter=maxiter)
+        avg_plan = avg_plan / avg_plan.sum(axis=1, keepdims=True)
+        Y_samples_idx = np.array([np.random.choice(n, p=avg_plan[i]) for i in range(n)])
+
+        # If you want the sampled points (Y values), use:
+        sampled_Y = X[Y_samples_idx]
+
+        if forward:
+            X = 2*X - sampled_Y
+        else:
+            X = sampled_Y
+
+        if i+1 in steps:
+            X_list.append(X)
+            print(f'Epsilon: {eps}, Steps: {i+1}, Distance from start: {np.linalg.norm(start-X)}')
+            if dir:
+                np.save(os.path.join(dir, f'eps{eps}_time{int(total_steps*eps)}.npy'), np.array(X_list))
+
+    return np.array(X_list)
+
 
 if __name__ == '__main__':  
 
@@ -182,10 +246,15 @@ if __name__ == '__main__':
     dir = f'results/{args.SB_estimation_method}/{args.source_dist}/{direction}'
     os.makedirs(dir, exist_ok=True)
 
-    if args.SB_estimation_method == 'mcmc':
+    if args.SB_estimation_method == 'SB_mcmc':
         X_SB_estimate = entropy_SB_scheme_mcmc(X, steps=steps, eps=args.step_size, total=args.mcmc_steps, discard=args.mcmc_burn, forward=args.forward, dir=dir)
-    else:
+    elif args.SB_estimation_method == 'SB_sinkhorn':
         X_SB_estimate = entropy_SB_scheme_sinkhorn(X, steps=steps, eps=args.step_size, forward=args.forward, precision=args.sinkhorn_precision, maxiter=args.sinkhorn_maxiter, dir=dir)
+    elif args.SB_estimation_method == 'RM_sinkhorn':
+        X_SB_estimate = entropy_RM_scheme_sinkhorn(X, steps=steps, eps=args.step_size, forward=args.forward, precision=args.sinkhorn_precision, maxiter=args.sinkhorn_maxiter, dir=dir)
+    else:
+        raise NotImplementedError(f"{args.SB_estimation_method} not implemented yet.")
+
 
     # Save arrays 
     
